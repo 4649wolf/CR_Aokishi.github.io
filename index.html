@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CR青騎士</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="startupModal" class="startupModal" aria-modal="true" role="dialog" aria-labelledby="startupTitle">
+    <div class="startupBackdrop"></div>
+    <div class="startupPanel">
+      <div class="startupGlow"></div>
+      <div class="startupHeader">
+        <div class="startupKicker">御案内</div>
+        <h1 id="startupTitle">CR青騎士 起動前確認</h1>
+        <p class="startupLead">遊び始める前に、操作と音量をひとつだけ整えます。<br>音量確認が終わると<strong>「御意！」</strong> が押せるようになります。</p>
+      </div>
+
+      <div class="startupGrid">
+        <section class="startupCard">
+          <h2>操作方法</h2>
+          <ul>
+            <li>左のカードをドラッグして挿入</li>
+            <li>← / → でハンドル強さを調整</li>
+            <li>リーチボタンは <strong>Space</strong> で1回押下</li>
+            <li><strong>R</strong> または RESET で完全リセット</li>
+          </ul>
+        </section>
+
+        <section class="startupCard">
+          <h2>この筐体の情報</h2>
+          <div class="startupOdds">
+            <div><span>カード1枚</span><strong>250玉</strong><em>残数が尽きると次のカードが必要です。</em></div>
+            <div><span>保留数</span><strong>最大4個</strong><em>右ディスプレイ内に縦並び表示です。</em></div>
+            <div><span>小入賞</span><strong>1/128.0</strong><em>発展52% / +2玉</em></div>
+            <div><span>入賞</span><strong>1/79.8</strong><em>発展72% / +8玉</em></div>
+            <div><span>大入賞</span><strong>1/26.8</strong><em>発展92% / +25玉</em></div>
+            <div><span>大当たり獲得</span><strong>+300玉</strong><em>コードの都合上発射口は上からとなります。</em></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="startupAudioCard">
+        <div class="startupAudioText">
+          <h2>音量調整</h2>
+          <p>スライダーで音量を決めて、<strong>音量確認</strong> を押してください。<br>確認音が最後まで流れると「御意！」が押せるようになります。</p>
+        </div>
+        <div class="startupAudioControls">
+          <label class="volumeLabel" for="startupVolumeRange">SE音量</label>
+          <input id="startupVolumeRange" type="range" min="0" max="100" step="1" value="80" />
+          <div id="startupVolumeValue">80%</div>
+          <button id="startupPreviewButton" type="button" class="startupActionButton secondary">音量確認</button>
+          <button id="startupConfirmButton" type="button" class="startupActionButton primary" disabled aria-disabled="true">御意！</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+
+  <div id="rotateNotice" class="rotateNotice" aria-hidden="true">
+    <div class="rotateNoticeCard">
+      <div class="rotateIcon">📱↻</div>
+      <h2>スマホは横向きで遊べます</h2>
+      <p>端末を横向きにすると、カード・ディスプレイ・ハンドル操作が遊びやすい配置になります。</p>
+    </div>
+  </div>
+
+  <div id="app">
+    <div id="stageWrap">
+      <div id="stage">
+                <img class="uiOverlay" id="uiCardSet" src="./assets/offset/cardSet.png" alt="" />
+        <img class="uiOverlay" id="uiTopPanel" src="./assets/offset/kakauritu.png" alt="" />
+        <img class="uiOverlay" id="uiDisplay" src="./assets/offset/display.png" alt="" />
+        <img class="uiOverlay" id="uiBottomPanel" src="./assets/offset/syousai.png" alt="" />
+        <img class="uiOverlay" id="uiReset" src="./assets/offset/reset.png" alt="" />
+
+        <div id="cardTrayPanel" aria-hidden="true"></div>
+        <div id="topLogoBadge" aria-hidden="true">CR青騎士</div>
+        <button id="resetButton" type="button" aria-label="リセット">RESET</button>
+
+        <img class="stockCard" id="stockCard1" src="./assets/card/card_cropped.png" alt="カード1" draggable="false" />
+        <img class="stockCard" id="stockCard2" src="./assets/card/card_cropped.png" alt="カード2" draggable="false" />
+        <img class="stockCard" id="stockCard3" src="./assets/card/card_cropped.png" alt="カード3" draggable="false" />
+
+        <section id="machineLayer" aria-label="パチンコ本体">
+          <div id="machineScaled">
+            <img id="machineHousing" src="./assets/housing/housing.png" alt="" />
+            <canvas id="physicsCanvas" width="1500" height="2299"></canvas>
+
+            <div id="screenEffects">
+              <div id="reachFlash"></div>
+              <img id="sword1" src="./assets/hit/sword_1.png" alt="" />
+              <img id="sword2" src="./assets/hit/sword_2.png" alt="" />
+            </div>
+
+            <img id="card" src="./assets/card/card_cropped.png" alt="" />
+            <img id="cardSlotCover" src="./assets/card/cardReader.png" alt="" />
+            <div id="handleWrap"><img id="handle" src="./assets/handle/handle_cropped.png" alt="" /></div>
+            <div id="handlePowerDisplay" aria-live="polite">0%</div>
+            <div id="mobileHandleControls" class="mobileOnly" aria-label="スマホ用ハンドル操作">
+              <button id="mobileHandleLeft" type="button" aria-label="ハンドルを左へ">←</button>
+              <button id="mobileHandleRight" type="button" aria-label="ハンドルを右へ">→</button>
+            </div>
+
+            <button id="pushButton" type="button" aria-label="PUSH">
+              <img id="pushButtonImg" src="./assets/button/button_1.png" alt="" />
+            </button>
+          </div>
+        </section>
+
+        <section id="displayViewport" aria-hidden="true">
+          <video id="displayVideo" playsinline preload="none"></video>
+          <div id="reelBoard">
+            <div class="reelWindow"><div class="reelStrip" data-reel="0"></div></div>
+            <div class="reelWindow"><div class="reelStrip" data-reel="1"></div></div>
+            <div class="reelWindow"><div class="reelStrip" data-reel="2"></div></div>
+          </div>
+          <div id="reserveLane" aria-label="保留">
+            <div class="reserveLabel">保留</div>
+            <div class="reserveSlots">
+              <div class="reserveSlot"></div>
+              <div class="reserveSlot"></div>
+              <div class="reserveSlot"></div>
+              <div class="reserveSlot"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="statusPanel" id="statusTop">
+          <div class="panelTitle">現在状態</div>
+          <div id="statusText">読み込み中…</div>
+        </section>
+
+        <section class="statusPanel fancyPanel" id="statusBottom">
+          <div class="panelHead">
+            <div>
+              
+            </div>
+          </div>
+
+          <div class="counterGrid">
+            <div class="counterCard dataCard">
+              <div class="statLine"><span>発射数</span><strong id="shotsValue">0</strong></div>
+              <div class="statLine"><span>入賞</span><strong id="goalValue">0</strong></div>
+              <div class="statLine"><span>大当たり</span><strong id="hitValue">0</strong></div>
+              <div class="statLine"><span>獲得玉数</span><strong id="ballValue">0</strong></div>
+              <div class="statLine"><span>あと打てる玉数</span><strong id="holdValue">0</strong></div>
+            </div>
+
+            <div class="counterCard oddsCard">
+              <div class="settingsTitle">抽選設定</div>
+              <div class="oddsLine"><span class="oddsName">小入賞</span><span class="oddsValue" id="smallOddsValue">1/128.0</span><span class="oddsMeta" id="smallMeta">発展52% / +2玉</span></div>
+              <div class="oddsLine"><span class="oddsName">入賞</span><span class="oddsValue" id="goalOddsValue">1/79.8</span><span class="oddsMeta" id="goalMeta">発展72% / +8玉</span></div>
+              <div class="oddsLine"><span class="oddsName">大入賞</span><span class="oddsValue" id="bigOddsValue">1/26.8</span><span class="oddsMeta" id="bigMeta">発展92% / +25玉</span></div>
+              <div class="settingsMetaGrid">
+                <div class="metaBlock"><span>図柄構成</span><strong>3ライン / 8図柄</strong></div>
+                <div class="metaBlock"><span>大当たり獲得</span><strong id="jackpotAwardValue">+300玉</strong></div>
+                <div class="metaBlock"><span>リーチボタン</span><strong>1回押下 / 抽選済</strong></div>
+                <div class="metaBlock"><span>カード装填</span><strong>1枚 / 250玉</strong></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/layout-config.global.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
